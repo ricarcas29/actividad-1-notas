@@ -8,7 +8,7 @@ export const useNoteStore = defineStore('note', () => {
     const loadingNotes = ref(false);
 
     const filteredNotes = ref<Note[]>([...notes.value]);
-    const notesCount = computed(() => notes.value.length);
+    const notesCount = computed(() => filteredNotes.value.length);
 
     const fetchNotes = (tagId?: string) => {
         if (tagId) {
@@ -32,13 +32,19 @@ export const useNoteStore = defineStore('note', () => {
         notes.value = notes.value.filter((note) => note.id !== id);
     };
 
-    const updateNote = (updatedNote: Note) => {
+    const updateNote = (updatedNote: Omit<Note, 'createdAt'>) => {
         const index = notes.value.findIndex(note => note.id === updatedNote.id);
         if (index !== -1) {
-            notes.value[index] = { ...updatedNote };  // Actualiza la nota con los nuevos datos
+            notes.value[index] = {
+                ...updatedNote,
+                createdAt: notes.value[index].createdAt
+            };
         }
     };
 
+    const deleteNotesByTag = (tagId: string) => {
+        console.log(tagId);
+    };
 
     const searchNotesByTitle = (title: string) => {
         filteredNotes.value = notes.value.filter((note) =>
@@ -53,6 +59,16 @@ export const useNoteStore = defineStore('note', () => {
             }
             return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
         });
+    }
+
+    const filterNotesByTag = (tagId: string) => {
+        if (!tagId) {
+            filteredNotes.value = [...notes.value];
+            return;
+        }
+        filteredNotes.value = notes.value.filter((note) =>
+            note.tags.some((tag) => tag.id === tagId)
+        );
     }
 
     watch(notes, (newNotes) => {
@@ -71,6 +87,8 @@ export const useNoteStore = defineStore('note', () => {
         searchNotesByTitle,
         fetchNotes,
         orderNotesByDate,
-        filteredNotes
+        filteredNotes,
+        filterNotesByTag,
+        deleteNotesByTag
     }
 });

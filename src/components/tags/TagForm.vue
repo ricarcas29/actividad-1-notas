@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, defineExpose, onMounted } from 'vue';
+import { reactive, onMounted } from 'vue';
 import { useTagStore } from '@/stores/tagStore';
 import type { Tag } from '@/interfaces/Tag';
 

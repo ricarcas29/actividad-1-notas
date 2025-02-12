@@ -42,7 +42,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, defineExpose, ref, computed } from 'vue';
+import { reactive, ref, computed } from 'vue';
 import type { Note } from '@/interfaces/Note';
 import type { Tag } from '@/interfaces/Tag';
 import { useTagStore } from '@/stores/tagStore';
@@ -58,6 +58,7 @@ const selectedTags = ref<Tag[]>([]);
 
 const emit = defineEmits<{
     (e: 'submit', task: Omit<Note, 'id' | 'createdAt'>): void
+    (e: 'submit-update', task: Omit<Note, 'createdAt'>): void
 }>()
 
 const initialForm = {
@@ -70,6 +71,11 @@ const form = reactive(initialForm);
 
 const handleSubmit = () => {
     emit('submit', { ...form, tags: selectedTags.value });
+    resetForm();
+};
+
+const handleSubmitForUpdate = (noteId: string) => {
+    emit('submit-update', { ...form, id: noteId, tags: selectedTags.value });
     resetForm();
 };
 
@@ -98,5 +104,10 @@ const openAddTagModal = () => {
     }
 };
 
-defineExpose({ handleSubmit, form });
+const setForm = (note: Note) => {
+    Object.assign(form, note);
+    selectedTags.value = note.tags;
+};
+
+defineExpose({ handleSubmit, form, setForm, handleSubmitForUpdate, resetForm });
 </script>

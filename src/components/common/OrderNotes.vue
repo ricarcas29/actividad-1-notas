@@ -17,9 +17,6 @@ const toggleOrder = () => {
     orderAsc.value = !orderAsc.value;
 };
 
-const emit = defineEmits<{
-    (e: 'order', value: boolean): void
-}>();
 
 watch(orderAsc, (value) => {
     emit('order', value);
@@ -28,4 +25,8 @@ watch(orderAsc, (value) => {
 onMounted(() => {
     emit('order', orderAsc.value);
 });
+
+const emit = defineEmits<{
+    (e: 'order', value: boolean): void
+}>();
 </script>

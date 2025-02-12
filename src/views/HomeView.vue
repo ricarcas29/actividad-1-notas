@@ -6,18 +6,30 @@ import SearchNote from '@/components/notes/SearchNote.vue';
 import NotePostIt from '@/components/notes/NotePostIt.vue';
 
 import { useNoteStore } from '@/stores/noteStore';
-import { computed, onMounted } from 'vue';
-import OrderNotes from '@/components/common/OrderNotes.vue';
+import { useTagStore } from '@/stores/tagStore';
+import { computed, onMounted, ref } from 'vue';
 
+import OrderNotes from '@/components/common/OrderNotes.vue';
+import DeleteAllNotes from '@/components/common/DeleteAllNotes.vue';
+
+/* --- referencias a componentes :) --- */
+const addNoteBtnRef = ref<InstanceType<typeof AddNoteBtn> | null>(null);
+
+/* --- stores --- :D */
 const noteStore = useNoteStore();
+const tagStore = useTagStore();
 
 onMounted(() => {
     noteStore.fetchNotes();
+    tagStore.fetchTags();
 });
 
 const hasNotes = computed(() => noteStore.notes.length > 0);
 const notes = computed(() => noteStore.filteredNotes);
 
+const tags = computed(() => tagStore.tags);
+
+/* --- metodos para filtrar notas ;) --- */
 const filterNotesByDate = (orderAsc: boolean) => {
     noteStore.orderNotesByDate(orderAsc);
 };
@@ -26,27 +38,51 @@ const filterNotesByTitle = (title: string) => {
     noteStore.searchNotesByTitle(title);
 };
 
+/* --- metodo para abrir modal de edicion de nota :P --- */
+const openEditModal = (noteId: string) => {
+    if (addNoteBtnRef.value) {
+        addNoteBtnRef.value.showModal();
+        addNoteBtnRef.value.handleEditNote(noteId);
+    }
+};
+
+const currentTitle = ref('Notas');
+
+const handleTagChange = (tagId: string) => {
+    changeNoteTitle(tagId);
+    noteStore.filterNotesByTag(tagId);
+};
+
+const changeNoteTitle = (tagId: string) => {
+    const tag = tags.value.find((tag) => tag.id === tagId);
+    if (tag) {
+        currentTitle.value = tag.name;
+    } else {
+        currentTitle.value = 'Notas';
+    }
+};
 </script>
 
 <template>
     <main class="flex">
-        <SidebarApp />
+        <SidebarApp @tag-click="handleTagChange" />
         <div class="container px-4 py-2">
             <div class="row items-center">
                 <div class="col-4">
-                    <TitleNote title="Notas" />
+                    <TitleNote :title="currentTitle" />
                 </div>
-                <div class="col-4">
+                <div class="col-4 text-center">
                     <SearchNote @search="filterNotesByTitle" />
                 </div>
-                <div class="col-4 text-end">
+                <div class="col-4 text-end gap-2 flex justify-content-end">
                     <OrderNotes ref="orderNotes" @order="filterNotesByDate" />
+                    <DeleteAllNotes />
                 </div>
             </div>
             <div class="row">
                 <div class="col-12">
                     <div v-if="hasNotes" class="row">
-                        <NotePostIt v-for="note in notes" :key="note.id" :note="note" />
+                        <NotePostIt v-for="note in notes" :key="note.id" :note="note" @click="openEditModal(note.id)" />
                     </div>
                     <div v-else>
                         <p>No hay notas</p>

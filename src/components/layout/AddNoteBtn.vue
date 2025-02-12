@@ -4,11 +4,11 @@
         <PlusIcon fill="white" />
     </button>
 
-    <AddNoteModal @submit="handleAddNote" @submit-update="handleUpdateNote" ref="modalRef" />
+    <AddNoteModal @submit="handleAddNote" @edit="handleEditNote" ref="modalRef" />
 </template>
 
 <script setup lang="ts">
-import { ref, defineEmits } from 'vue';
+import { ref } from 'vue';
 import PlusIcon from '@/assets/icons/PlusIcon.vue';
 import AddNoteModal from '../notes/AddNoteModal.vue';
 
@@ -17,7 +17,6 @@ import { useNoteStore } from '@/stores/noteStore';
 
 const noteStore = useNoteStore();
 const modalRef = ref<InstanceType<typeof AddNoteModal> | null>(null);
-defineEmits(["edit"]);
 
 const showModal = () => {
     if (modalRef.value) {
@@ -31,8 +30,12 @@ const handleAddNote = (note: Omit<Note, 'id' | 'createdAt'>) => {
     });
 };
 
-const handleUpdateNote = (note: Note) => {
-    noteStore.updateNote(note);
+const handleEditNote = (noteId: string) => {
+    if (modalRef.value) {
+        modalRef.value.handleEditNote(noteId);
+    }
 };
+
+defineExpose({ showModal, handleEditNote });
 
 </script>

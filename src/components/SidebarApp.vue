@@ -5,10 +5,11 @@
             <hr class="m-0 border-t border-gray-500 w-100">
         </div>
         <div class="max-h-full overflow-y-auto flex flex-col gap-y-1.5">
-            <NavbarLink to="/">
+            <NavbarLink to="/" @click="handleTagClick('')">
                 <template v-slot:title>Todas</template>
             </NavbarLink>
-            <NavbarLink v-for="tag in tags" :key="tag.id" :to="`/?tag=${tag.id}`" :bg-color="tag.color">
+            <NavbarLink v-for="tag in tags" :key="tag.id" :to="`/?tag=${tag.id}`" :bg-color="tag.color"
+                @click="handleTagClick(tag.id)">
                 <template v-slot:title>{{ tag.name }}</template>
             </NavbarLink>
         </div>
@@ -16,16 +17,31 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, computed } from 'vue';
+import { onMounted, computed, defineEmits } from 'vue';
 import NavbarLink from './common/NavbarLink.vue';
 import { useTagStore } from '@/stores/tagStore';
+import { useRoute } from 'vue-router';
+
 
 const tagStore = useTagStore();
 const tags = computed(() => tagStore.tags);
 
+const emit = defineEmits<{
+    (e: 'tag-click', tagId: string): void
+}>();
+
 onMounted(() => {
     tagStore.fetchTags();
+
+    const route = useRoute();
+    const tagId = route.query.tag as string;
+
+    handleTagClick(tagId);
 });
 
+const handleTagClick = (tagId: string) => {
+    tagStore.setCurrentTag(tagId);
+    emit('tag-click', tagId);
+};
 
 </script>

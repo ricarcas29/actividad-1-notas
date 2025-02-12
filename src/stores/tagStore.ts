@@ -7,6 +7,7 @@ export const useTagStore = defineStore('tag', () => {
     const tags = ref<Tag[]>(tagList);
     const loadingTags = ref(false);
 
+    const currentTag = ref<Tag | null>(null);
     const tagsCount = computed(() => tags.value.length);
 
     const fetchTags = () => {
@@ -25,6 +26,13 @@ export const useTagStore = defineStore('tag', () => {
         tags.value = tags.value.filter((tag) => tag.id !== id);
     };
 
+    const setCurrentTag = (tagId: string) => {
+        const tag = tags.value.find((tag) => tag.id === tagId);
+        if (tag) {
+            currentTag.value = tag;
+        }
+    }
+
     watch(tags, (newTags) => {
         localStorage.setItem('tags', JSON.stringify(newTags));
     }, { deep: true });
@@ -36,5 +44,6 @@ export const useTagStore = defineStore('tag', () => {
         addTag,
         deleteTag,
         fetchTags,
+        setCurrentTag
     }
 });
