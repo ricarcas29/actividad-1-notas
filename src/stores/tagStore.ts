@@ -3,8 +3,9 @@ import { ref, computed, watch } from 'vue'
 import type { Tag } from '@/interfaces/Tag.ts'
 
 export const useTagStore = defineStore('tag', () => {
-    const tagList = JSON.parse(localStorage.getItem('tags') ?? '[]');
-    const tags = ref<Tag[]>(tagList);
+    // const tagList = JSON.parse(localStorage.getItem('tags') ?? '[]');
+    // const tags = ref<Tag[]>(tagList);
+    const tags = ref<Tag[]>(JSON.parse(localStorage.getItem('tags') ?? '[]'));
     const loadingTags = ref(false);
 
     const currentTag = ref<Tag | null>(null);
@@ -27,12 +28,7 @@ export const useTagStore = defineStore('tag', () => {
     };
 
     const setCurrentTag = (tagId?: string) => {
-        const tag = tags.value.find((tag) => tag.id === tagId);
-        if (tag) {
-            currentTag.value = tag;
-        } else {
-            currentTag.value = null
-        }
+        currentTag.value = tags.value.find((tag) => tag.id === tagId) || null;
     }
 
     watch(tags, (newTags) => {

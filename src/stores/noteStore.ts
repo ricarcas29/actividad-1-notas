@@ -3,104 +3,101 @@ import { ref, computed, watch } from 'vue'
 import type { Note } from '@/interfaces/Note.ts'
 
 export const useNoteStore = defineStore('note', () => {
-    const notesList = JSON.parse(localStorage.getItem('notes') ?? '[]');
-    const notes = ref<Note[]>(notesList);
-    const loadingNotes = ref(false);
+  //Aqui no hace falta una reasignación de las notas ya que obtienes las notas del localStorage
+  // const notesList = JSON.parse(localStorage.getItem('notes') ?? '[]');
+  // const notes = ref<Note[]>(notesList);
 
-    const filteredNotes = ref<Note[]>([...notes.value]);
-    const notesCount = computed(() => filteredNotes.value.length);
+  //Aqui se obtienen las notas del localStorage y se convierte a un array de notas
+  const notes = ref<Note[]>(JSON.parse(localStorage.getItem('notes') ?? '[]'))
 
-    const fetchNotes = (tagId?: string) => {
-        if (tagId) {
-            return notes.value.filter((note) =>
-                note.tags.some((tag) => tag.id === tagId)
-            );
-        }
-        return notes.value;
-    };
+  const loadingNotes = ref(false)
 
-    const addNote = (note: Omit<Note, 'id' | 'createdAt'>) => {
-        const newNote = {
-            ...note,
-            id: crypto.randomUUID(),
-            createdAt: new Date(),
-        }
-        notes.value = [...notes.value, newNote];
-    };
+  const filteredNotes = ref<Note[]>([...notes.value])
+  const notesCount = computed(() => filteredNotes.value.length)
 
-    const deleteNote = (id: string) => {
-        notes.value = notes.value.filter((note) => note.id !== id);
-    };
-
-    const updateNote = (updatedNote: Omit<Note, 'createdAt'>) => {
-        const index = notes.value.findIndex(note => note.id === updatedNote.id);
-        if (index !== -1) {
-            notes.value[index] = {
-                ...updatedNote,
-                createdAt: notes.value[index].createdAt
-            };
-        }
-    };
-
-    const deleteNotesByTag = (tagId?: string) => {
-        if (!tagId) {
-            notes.value = [];
-            return;
-        }
-
-        notes.value = notes.value.filter((note) =>
-            !note.tags.some((tag) => tag.id === tagId)
-        );
-
-        filterNotesByTag(tagId);
-    };
-
-    const searchNotesByTitle = (title: string) => {
-        filteredNotes.value = notes.value.filter((note) =>
-            note.title.toLowerCase().includes(title.toLowerCase())
-        );
-    };
-
-    const orderNotesByDate = (orderAsc: boolean) => {
-        filteredNotes.value = filteredNotes.value.sort((a, b) => {
-            if (orderAsc) {
-                return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
-            }
-            return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime();
-        });
+  const fetchNotes = (tagId?: string) => {
+    if (tagId) {
+      return notes.value.filter((note) => note.tags.some((tag) => tag.id === tagId))
     }
+    return notes.value
+  }
 
-    const filterNotesByTag = (tagId?: string) => {
-        if (!tagId) {
-            filteredNotes.value = [...notes.value];
-            return;
-        }
-
-        filteredNotes.value = notes.value.filter((note) =>
-            note.tags.some((tag) => tag.id === tagId)
-        );
-
-        console.log(filteredNotes.value.length);
+  const addNote = (note: Omit<Note, 'id' | 'createdAt'>) => {
+    const newNote = {
+      ...note,
+      id: crypto.randomUUID(),
+      createdAt: new Date(),
     }
+    notes.value.push(newNote)
+  }
 
-    watch(notes, (newNotes) => {
-        localStorage.setItem('notes', JSON.stringify(newNotes));
-        filteredNotes.value = [...newNotes];
-    }, { deep: true });
+  const deleteNote = (id: string) => {
+    notes.value = notes.value.filter((note) => note.id !== id)
+  }
 
-
-    return {
-        notes,
-        notesCount,
-        loadingNotes,
-        addNote,
-        deleteNote,
-        updateNote,
-        searchNotesByTitle,
-        fetchNotes,
-        orderNotesByDate,
-        filteredNotes,
-        filterNotesByTag,
-        deleteNotesByTag
+  const updateNote = (updatedNote: Omit<Note, 'createdAt'>) => {
+    const index = notes.value.findIndex((note) => note.id === updatedNote.id)
+    if (index !== -1) {
+      notes.value[index] = {
+        ...updatedNote,
+        createdAt: notes.value[index].createdAt,
+      }
     }
-});
+  }
+
+  const deleteNotesByTag = (tagId?: string) => {
+    if (!tagId) {
+      notes.value = []
+    } else {
+      notes.value = notes.value.filter((note) => !note.tags.some((tag) => tag.id === tagId))
+    }
+    filterNotesByTag(tagId)
+  }
+
+  const searchNotesByTitle = (title: string) => {
+    filteredNotes.value = notes.value.filter((note) =>
+      note.title.toLowerCase().includes(title.toLowerCase()),
+    )
+  }
+
+  const orderNotesByDate = (orderAsc: boolean) => {
+    filteredNotes.value = filteredNotes.value.sort((a, b) => {
+      if (orderAsc) {
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      }
+      return new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    })
+  }
+
+  const filterNotesByTag = (tagId?: string) => {
+    console.log(tagId);
+    if (!tagId) {
+      filteredNotes.value = [...notes.value]
+    } else {
+      filteredNotes.value = notes.value.filter((note) => note.tags.some((tag) => tag.id === tagId))
+    }
+  }
+
+  watch(
+    notes,
+    (newNotes) => {
+      localStorage.setItem('notes', JSON.stringify(newNotes))
+    },
+    { deep: true },
+  )
+
+  return {
+    notes,
+    notesCount,
+    loadingNotes,
+    addNote,
+    deleteNote,
+    updateNote,
+    searchNotesByTitle,
+    fetchNotes,
+    orderNotesByDate,
+    filteredNotes,
+    filterNotesByTag,
+    deleteNotesByTag,
+  }
+})

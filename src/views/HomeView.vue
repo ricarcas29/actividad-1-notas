@@ -15,20 +15,15 @@ import DeleteAllNotes from '@/components/common/DeleteAllNotes.vue';
 /* --- referencias a componentes :) --- */
 const addNoteBtnRef = ref<InstanceType<typeof AddNoteBtn> | null>(null);
 
+/* --- variables reactivas --- */
+const currentTitle = ref('Notas');
+
 /* --- stores --- :D */
 const noteStore = useNoteStore();
 const tagStore = useTagStore();
 
-onMounted(() => {
-    noteStore.fetchNotes();
-    tagStore.fetchTags();
-});
-
-
-const hasNotes = computed(() => noteStore.filteredNotes.length);
-const notes = computed(() => noteStore.filteredNotes);
-
-const tags = computed(() => tagStore.tags);
+/* --- Datos computados --- */
+const hasNotes = computed(() => noteStore.filteredNotes.length > 0);
 
 /* --- metodos para filtrar notas ;) --- */
 const filterNotesByDate = (orderAsc: boolean) => {
@@ -47,15 +42,13 @@ const openEditModal = (noteId: string) => {
     }
 };
 
-const currentTitle = ref('Notas');
-
 const handleTagChange = (tagId: string) => {
     changeNoteTitle(tagId);
     noteStore.filterNotesByTag(tagId);
 };
 
 const changeNoteTitle = (tagId: string) => {
-    const tag = tags.value.find((tag) => tag.id === tagId);
+    const tag = tagStore.tags.find((tag) => tag.id === tagId);
     if (tag) {
         currentTitle.value = tag.name;
     } else {
@@ -63,15 +56,11 @@ const changeNoteTitle = (tagId: string) => {
     }
 };
 
-const handleDeleteAllNotes = () => {
-    noteStore.filterNotesByTag(tagStore.currentTag?.id);
-};
-
 </script>
 
 <template>
     <main class="flex">
-        <SidebarApp @tag-click="handleTagChange" />
+        <SidebarApp  />
         <div class="container px-4 py-2">
             <div class="row items-center">
                 <div class="col-4">
@@ -82,13 +71,13 @@ const handleDeleteAllNotes = () => {
                 </div>
                 <div class="col-4 text-end gap-2 flex justify-content-end">
                     <OrderNotes ref="orderNotes" @order="filterNotesByDate" />
-                    <DeleteAllNotes @delete-all-notes="handleDeleteAllNotes" ref="deleteAllNotesRef" />
+                    <DeleteAllNotes ref="deleteAllNotesRef" />
                 </div>
             </div>
             <div class="row">
                 <div class="col-12">
                     <div v-if="hasNotes" class="row">
-                        <NotePostIt v-for="note in notes" :key="note.id" :note="note" @click="openEditModal(note.id)" />
+                        <NotePostIt v-for="note in noteStore.filteredNotes" :key="note.id" :note="note" @click="openEditModal(note.id)" />
                     </div>
                     <div v-else>
                         <p>No hay notas</p>

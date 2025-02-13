@@ -23,14 +23,23 @@ const emit = defineEmits<{
 }>();
 
 onMounted(() => {
-    tagStore.fetchTags();
+    //El fetchTags() sirve cuando haces una petición a una API o una reasignacion de variables
+    // Por ejemplos una variable de este componente para usar solo en este template:
+    // const tagsInTagForm = tagStore.fetchTags();
+    // Se escribe así por que tu estas esperando que la función te retorne un valor.
+    //Pero si quieres que siga manteniendo la reactividad, se escribe así en el store:
+    // const fetchTags = () => {
+    //       const req = await fetch('https://api.com/tags') = [{id: '1', name: 'tag1', color: 'red'}];
+    //       const tags = ref(req);
+    //      return tags;
+    // }
+    // tagStore.fetchTags();
 });
 
 const initialForm = {
     name: '',
     color: '',
 };
-
 const form = reactive(initialForm);
 
 const handleTagSubmit = () => {
