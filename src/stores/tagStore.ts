@@ -26,10 +26,12 @@ export const useTagStore = defineStore('tag', () => {
         tags.value = tags.value.filter((tag) => tag.id !== id);
     };
 
-    const setCurrentTag = (tagId: string) => {
+    const setCurrentTag = (tagId?: string) => {
         const tag = tags.value.find((tag) => tag.id === tagId);
         if (tag) {
             currentTag.value = tag;
+        } else {
+            currentTag.value = null
         }
     }
 
@@ -44,6 +46,7 @@ export const useTagStore = defineStore('tag', () => {
         addTag,
         deleteTag,
         fetchTags,
-        setCurrentTag
+        setCurrentTag,
+        currentTag,
     }
 });

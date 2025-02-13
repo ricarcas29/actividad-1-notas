@@ -14,10 +14,11 @@
                         quieres continuar?</p>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                    <button type="button" class="btn bg-black text-white" data-bs-dismiss="modal">
                         Cancelar
                     </button>
-                    <button type="button" class="btn bg-black text-white" @click="handleDeleteTagsById">Aceptar</button>
+                    <button type="button" class="btn btn-danger text-white"
+                        @click="handleDeleteTagsById">Aceptar</button>
                 </div>
             </div>
         </div>
@@ -35,6 +36,10 @@ let modalInstance: import("bootstrap").Modal | null = null;
 const tagStore = useTagStore();
 const notesStore = useNoteStore();
 
+const emit = defineEmits<{
+    (e: 'delete-all-notes'): void;
+}>()
+
 onMounted(() => {
     const bootstrap = (window as any).bootstrap;
     if (bootstrap && modalEl.value) {
@@ -49,8 +54,11 @@ const open = () => {
 };
 
 const handleDeleteTagsById = () => {
-
+    notesStore.deleteNotesByTag(tagStore?.currentTag?.id)
+    close();
+    emit('delete-all-notes');
 };
+
 
 const close = () => {
     if (modalInstance) {

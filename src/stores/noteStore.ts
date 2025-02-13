@@ -42,8 +42,17 @@ export const useNoteStore = defineStore('note', () => {
         }
     };
 
-    const deleteNotesByTag = (tagId: string) => {
-        console.log(tagId);
+    const deleteNotesByTag = (tagId?: string) => {
+        if (!tagId) {
+            notes.value = [];
+            return;
+        }
+
+        notes.value = notes.value.filter((note) =>
+            !note.tags.some((tag) => tag.id === tagId)
+        );
+
+        filterNotesByTag(tagId);
     };
 
     const searchNotesByTitle = (title: string) => {
@@ -61,14 +70,17 @@ export const useNoteStore = defineStore('note', () => {
         });
     }
 
-    const filterNotesByTag = (tagId: string) => {
+    const filterNotesByTag = (tagId?: string) => {
         if (!tagId) {
             filteredNotes.value = [...notes.value];
             return;
         }
+
         filteredNotes.value = notes.value.filter((note) =>
             note.tags.some((tag) => tag.id === tagId)
         );
+
+        console.log(filteredNotes.value.length);
     }
 
     watch(notes, (newNotes) => {

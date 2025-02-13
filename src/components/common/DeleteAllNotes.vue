@@ -2,7 +2,7 @@
     <button class="btn btn-danger text-white w-10 h-10" type="button" @click="openModal">
         <TrashIcon fill="white" />
     </button>
-    <DeleteAllNotesModal ref="deleteAllNotesModal" />
+    <DeleteAllNotesModal @delete-all-notes="handleDeleteAllNotes" ref="deleteAllNotesModal" />
 </template>
 
 <script setup lang="ts">
@@ -17,5 +17,13 @@ const openModal = () => {
     if (deleteAllNotesModal.value) {
         deleteAllNotesModal.value.open();
     }
+};
+
+const emit = defineEmits<{
+    (e: 'delete-all-notes'): void
+}>();
+
+const handleDeleteAllNotes = () => {
+    emit('delete-all-notes');
 };
 </script>

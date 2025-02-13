@@ -24,7 +24,8 @@ onMounted(() => {
     tagStore.fetchTags();
 });
 
-const hasNotes = computed(() => noteStore.notes.length > 0);
+
+const hasNotes = computed(() => noteStore.filteredNotes.length);
 const notes = computed(() => noteStore.filteredNotes);
 
 const tags = computed(() => tagStore.tags);
@@ -61,6 +62,11 @@ const changeNoteTitle = (tagId: string) => {
         currentTitle.value = 'Notas';
     }
 };
+
+const handleDeleteAllNotes = () => {
+    noteStore.filterNotesByTag(tagStore.currentTag?.id);
+};
+
 </script>
 
 <template>
@@ -76,7 +82,7 @@ const changeNoteTitle = (tagId: string) => {
                 </div>
                 <div class="col-4 text-end gap-2 flex justify-content-end">
                     <OrderNotes ref="orderNotes" @order="filterNotesByDate" />
-                    <DeleteAllNotes />
+                    <DeleteAllNotes @delete-all-notes="handleDeleteAllNotes" ref="deleteAllNotesRef" />
                 </div>
             </div>
             <div class="row">
