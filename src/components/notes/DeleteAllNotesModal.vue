@@ -26,7 +26,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, defineEmits } from 'vue';
 import { useTagStore } from '@/stores/tagStore';
 import { useNoteStore } from '@/stores/noteStore';
 
@@ -36,9 +36,9 @@ let modalInstance: import("bootstrap").Modal | null = null;
 const tagStore = useTagStore();
 const notesStore = useNoteStore();
 
-const emit = defineEmits<{
-    (e: 'delete-all-notes'): void;
-}>()
+// const emit = defineEmits<{
+//     (e: 'delete-all-notes', tagId: string): void;
+// }>()
 
 onMounted(() => {
     const bootstrap = (window as any).bootstrap;
@@ -54,11 +54,14 @@ const open = () => {
 };
 
 const handleDeleteTagsById = () => {
-    notesStore.deleteNotesByTag(tagStore?.currentTag?.id)
+    const currentTag = tagStore.currentTag;
+    if (currentTag && currentTag.id) {
+        notesStore.deleteNotesByTag(currentTag.id);
+        //Se borra el emit ya que al borrar las notas se actualiza el order de las notas desde esa función
+        // emit('delete-all-notes', currentTag.id); 
+    }
     close();
-    emit('delete-all-notes');
 };
-
 
 const close = () => {
     if (modalInstance) {

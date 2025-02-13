@@ -1,6 +1,6 @@
 <template>
     <button class="fixed bottom-10 right-10 p-2 bg-black text-white rounded-full shadow-lg w-10 h-10 text-center"
-        style="border-radius:  100% !important;" @click="showModal">
+        @click="showModal">
         <PlusIcon fill="white" />
     </button>
 
@@ -19,23 +19,23 @@ const noteStore = useNoteStore();
 const modalRef = ref<InstanceType<typeof AddNoteModal> | null>(null);
 
 const showModal = () => {
-    if (modalRef.value) {
-        modalRef.value.open();
-    }
+    modalRef.value?.open();
 };
 
 const handleAddNote = (note: Omit<Note, 'id' | 'createdAt'>) => {
-    noteStore.addNote({
-        ...note,
-    });
+    noteStore.addNote(note);
 };
 
 const handleEditNote = (noteId: string) => {
-    if (modalRef.value) {
-        modalRef.value.handleEditNote(noteId);
-    }
+    modalRef.value?.handleEditNote(noteId);
 };
 
 defineExpose({ showModal, handleEditNote });
 
 </script>
+
+<style scoped>
+button {
+    border-radius: 100% !important;
+}
+</style>

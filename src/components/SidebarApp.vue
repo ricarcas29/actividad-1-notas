@@ -8,7 +8,7 @@
             <NavbarLink to="/" @click="handleTagClick('')">
                 <template v-slot:title>Todas</template>
             </NavbarLink>
-            <NavbarLink v-for="tag in tags" :key="tag.id" :to="`/?tag=${tag.id}`" :bg-color="tag.color"
+            <NavbarLink v-for="tag in tagStore.tags" :key="tag.id" :to="`/?tag=${tag.id}`" :bg-color="tag.color"
                 @click="handleTagClick(tag.id)">
                 <template v-slot:title>{{ tag.name }}</template>
             </NavbarLink>
@@ -20,18 +20,20 @@
 import { onMounted, computed, defineEmits } from 'vue';
 import NavbarLink from './common/NavbarLink.vue';
 import { useTagStore } from '@/stores/tagStore';
+import { useNoteStore } from '@/stores/noteStore';
 import { useRoute } from 'vue-router';
 
 
 const tagStore = useTagStore();
-const tags = computed(() => tagStore.tags);
+const noteStore = useNoteStore();
+// const tags = computed(() => tagStore.tags);
 
 const emit = defineEmits<{
     (e: 'tag-click', tagId: string): void
 }>();
 
 onMounted(() => {
-    tagStore.fetchTags();
+    // tagStore.fetchTags();
 
     const route = useRoute();
     const tagId = route.query.tag as string;
@@ -41,7 +43,7 @@ onMounted(() => {
 
 const handleTagClick = (tagId: string) => {
     tagStore.setCurrentTag(tagId);
-    emit('tag-click', tagId);
+    noteStore.filterNotesByTag(tagId);
 };
 
 </script>

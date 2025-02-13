@@ -67,16 +67,14 @@ const submitForm = () => {
 };
 
 const handleSubmitForm = (note: Omit<Note, 'id' | 'createdAt'>) => {
-    noteStore.addNote({
-        ...note,
-    });
+    noteStore.addNote(note);
     if (modalInstance) {
         modalInstance.hide();
     }
 };
 
 const handleEditNote = (noteId: string) => {
-    const note = <Note>notes.value.find(n => n.id === noteId);
+    const note = noteStore.notes.find(n => n.id === noteId) as Note;
     if (note) {
         isEditing.value = true;
         currentNoteId.value = noteId;

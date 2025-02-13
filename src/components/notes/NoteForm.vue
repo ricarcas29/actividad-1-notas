@@ -14,7 +14,7 @@
             <div class="input-group">
                 <select class="form-select" id="selectTag" v-model="selectedTagId">
                     <option disabled value="">Selecciona una etiqueta</option>
-                    <option v-for="tag in tags" :key="tag.id" :value="tag.id">
+                    <option v-for="tag in tagStore.tags" :key="tag.id" :value="tag.id">
                         {{ tag.name }}
                     </option>
                 </select>
@@ -50,7 +50,6 @@ import { useTagStore } from '@/stores/tagStore';
 import AddTagModal from '../tags/AddTagModal.vue';
 
 const tagStore = useTagStore();
-const tags = computed(() => tagStore.tags);
 
 const addTagModalRef = ref<InstanceType<typeof AddTagModal> | null>(null);
 const selectedTagId = ref<string>('');
@@ -87,7 +86,7 @@ const resetForm = () => {
 const addSelectedTag = () => {
     if (!selectedTagId.value) return;
 
-    const tag = tags.value.find(t => t.id === selectedTagId.value);
+    const tag = tagStore.tags.find(t => t.id === selectedTagId.value);
     if (tag && !selectedTags.value.some(t => t.id === tag.id)) {
         selectedTags.value.push(tag);
     }
